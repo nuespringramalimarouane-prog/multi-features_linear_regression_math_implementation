@@ -8,20 +8,23 @@ def main():
     df = pd.read_csv("dataset_clean.csv")
 
     # Load the features from the CSV file into a DataFrame
-    data_x = np.array(df.drop("price", axis=1)[:15000])
-    y_train = np.array(df.get("price")[:15000])
-    y_test = np.array(df.get("price")[19990:20000])
+    data_x = np.array(df.drop("price", axis=1)[:17000])
+    y_train = np.array(df.get("price")[:17000])
+    y_test = np.array(df.get("price")[17000:20000])
 
     # Normalize the features data and the test data using mean normalization
     mean = data_x.mean(axis=0)
     min_val = data_x.min(axis=0)
     max_val = data_x.max(axis=0)
 
-    x_train = (data_x - mean) / (max_val - min_val)
-    x_test  = (np.array(df.drop("price", axis=1)[19990:20000]) - mean) / (max_val - min_val)
+    scale = max_val - min_val
+    scale[scale == 0] = 1
+
+    x_train = (data_x - mean) / scale
+    x_test  = (np.array(df.drop("price", axis=1)[17000:20000]) - mean) / scale
 
     # Calculating weights vector and the biais also ploting the cost function 
-    w, b, cost_history = gradient_descent(x_train, y_train, alpha=0.1, num_iters=1000)
+    w, b, cost_history = gradient_descent(x_train, y_train, alpha=1, num_iters=1000)
 
     plt.plot(range(len(cost_history)), cost_history)
     plt.xlabel("Iteration")
@@ -36,12 +39,30 @@ def main():
 
         print(f"prediction indx({i}): {y_pred} , real y : {y_test[i]}")
 
+    own_data = [4,2,1903,7550,2,0,0,4,8,1800,200,2005,47.73847,-122.342]
+    own_data[own_data == 0] = 1
+
+    y_pr = model(w,b,((own_data - mean) / scale))
+
+
+    print(f"my own data test : {y_pr}")
+
     y_preds = [model(w, b, x) for x in x_test]
     # evaluate the model effeciency using the R² score 
-    # this model is a linear model so the best score you could get is 0.46 
-    # so the model almost gets correct predictions by 46% 
-    # maybe using a non-linear model will fit the data correctly
-    print("R²:", r2_score_np(y_test, y_preds))
+    print("R² Gradient Descent:", r2_score_np(y_test, y_preds))
+
+    #this here is using least squares algorithm to get w,b no alpha , no iterations needed 
+    X_b = np.c_[np.ones((x_train.shape[0], 1)), x_train]
+
+    theta = np.linalg.lstsq(X_b, y_train, rcond=None)[0]
+
+    b_normal = theta[0]
+    w_normal = theta[1:]
+
+    y_preds_normal = np.dot(x_test, w_normal) + b_normal
+
+  
+    print("R² Least Squares:", r2_score_np(y_test, y_preds_normal))
 
  
 
