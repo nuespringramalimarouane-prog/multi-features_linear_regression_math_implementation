@@ -18,10 +18,10 @@ This project trains a multiple linear regression model from scratch with NumPy. 
 - pandas
 - Matplotlib
 
-The project does not currently include a `requirements.txt` file. Install the dependencies with:
+Install the project dependencies with:
 
 ```bash
-python -m pip install numpy pandas matplotlib
+python -m pip install -r requirements.txt
 ```
 
 On Windows, a virtual environment can be created and activated with:
