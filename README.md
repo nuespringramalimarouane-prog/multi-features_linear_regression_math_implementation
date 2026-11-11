@@ -1,6 +1,6 @@
 # Multiple Linear Regression with Gradient Descent
 
-This project trains a multiple linear regression model from scratch with NumPy. It uses batch gradient descent to predict house prices from several property features, plots the training cost as it changes, and reports predictions and an R-squared score for a small held-out slice of the dataset.
+This project trains a multiple linear regression model from scratch with NumPy. It uses batch gradient descent to predict house prices from several property features, plots the training cost as it changes, and evaluates both gradient descent and a closed-form least-squares solution on a held-out slice of the dataset.
 
 ## Project Structure
 
@@ -43,13 +43,13 @@ python main.py
 The program will:
 
 1. Read `dataset_clean.csv` into a pandas DataFrame.
-2. Use the first 15,000 rows for training.
-3. Use rows 19,990 through 19,999 for evaluation.
+2. Use the first 17,000 rows for training.
+3. Use rows 17,000 through 19,999 for evaluation (3,000 rows).
 4. Normalize every feature using the training data's mean, minimum, and maximum.
-5. Train a linear model for 1,000 iterations with a learning rate of `0.1`.
-6. Display a cost-versus-iteration plot.
-7. Print each evaluation prediction alongside its actual price.
-8. Print the evaluation R-squared score.
+5. Train a linear model for 1,000 iterations with a learning rate of `1.0` (configured in `main.py`).
+6. Also calculate a closed-form least-squares solution for comparison.
+7. Display the gradient-descent cost history and actual-versus-predicted plots.
+8. Print training and test R-squared scores for both approaches.
 
 ## Dataset
 
@@ -135,14 +135,14 @@ The script calculates the coefficient of determination, also called R-squared. T
 
 R-squared = 1 - (sum of squared prediction errors / sum of squared differences from the actual average)
 
-An R-squared value of `1` indicates perfect predictions, `0` means the model performs like predicting the evaluation average, and a negative value means it performs worse than that baseline. The current evaluation uses only 10 rows, so its score can vary substantially and should not be treated as a robust estimate of generalization performance.
+An R-squared value of `1` indicates perfect predictions, `0` means the model performs like predicting the evaluation average, and a negative value means it performs worse than that baseline. The current evaluation uses a fixed contiguous slice of 3,000 rows. Because the split is based on row order rather than a randomized or time-aware strategy, check the dataset ordering before interpreting the score as a generalization estimate.
 
 ## Implementation Notes and Limitations
 
 - The training and evaluation ranges are hard-coded in `main.py`; changing the dataset size or using the script for general-purpose prediction requires updating those slices.
 - There is no randomized train/test split or cross-validation.
 - The evaluation rows are separated from the training rows, but the script does not report metrics on a larger test set.
-- The learning rate and iteration count are fixed in `main.py` when `gradient_descent()` is called.
+- The learning rate (`1.0`) and iteration count (`1,000`) are configured in `main.py` when `gradient_descent()` is called.
 - `gradient_descent.py` prints progress every 100 iterations and `main.py` opens an interactive Matplotlib window.
 - Normalization assumes every feature has a non-zero range. A constant feature would require special handling to avoid division by zero.
 - The model is linear. It does not capture nonlinear relationships or feature interactions unless those features are added explicitly.
